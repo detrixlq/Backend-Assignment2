@@ -1,23 +1,13 @@
 document.addEventListener('DOMContentLoaded', function() {
     const searchButton = document.getElementById('searchButton');
     const searchInput = document.getElementById('searchInput');
-    fetchUserLocationAndWeather();
-
-
-
-
-    function fetchUserLocationAndWeather() {
-        fetch('/location')
-            .then(response => response.json())
-            .then(locationData => {
-                const coords = locationData.loc.split(',');
-                const lat = coords[0];
-                const lon = coords[1];
-                fetchWeatherDataByCoords(lat, lon); // Implement this function to fetch weather by coordinates
-            })
-            .catch(error => console.error('Error fetching user location:', error));
-    }
     
+    fetchAQIData('Astana');
+    fetchWeatherData('Astana')
+
+
+
+
 
     // Event listener for the search button
     searchButton.addEventListener('click', function(e) {
@@ -32,12 +22,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 function fetchAQIData(city) {
-    fetch(`/aqi?city=${encodeURIComponent(city)}`)
+    fetch(`/aqi/${encodeURIComponent(city)}`)
         .then(response => response.json())
         .then(aqiData => {
-            updateAQIDisplay(aqiData); // Function to update the DOM with AQI data
+            displayAQIData(aqiData);
         })
         .catch(error => console.error('Error fetching AQI data:', error));
+}
+
+function displayAQIData(aqiData) {
+    const aqiDisplay = document.getElementById('aqiDisplay');
+    if (aqiData && aqiData.aqi) {
+        aqiDisplay.innerHTML = `
+            <h2>AQI Information for ${aqiData.city.name}</h2>
+            <p>AQI: ${aqiData.aqi}</p>
+            <!-- Add more details as needed -->
+        `;
+    } else {
+        aqiDisplay.innerHTML = '<p>AQI information is currently unavailable.</p>';
+    }
 }
 
 
@@ -85,24 +88,3 @@ function updateMap(lat, lon) {
         .openPopup();
 }
 
-function updateAQIDisplay(aqiData) {
-    const aqiDisplay = document.getElementById('aqiDisplay'); // Ensure you have this element in your HTML
-    aqiDisplay.innerHTML = `
-        <p><strong>AQI:</strong> ${aqiData.aqi}</p>
-        <p><strong>Main Pollutant:</strong> ${aqiData.mainus}</p>
-    `;
-}
-
-function fetchWeatherDataByCoords(lat, lon) {
-    fetch(`/weather?lat=${lat}&lon=${lon}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            updateWeatherDisplay(data); // Use your existing function to display weather data
-        })
-        .catch(error => console.error('Error fetching weather data:', error));
-}

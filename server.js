@@ -1,27 +1,22 @@
-// Import necessary modules
 const express = require('express');
 const dotenv = require('dotenv').config();
 // const fetch = require('node-fetch');
 const path = require('path');
+const axios = require('axios');
 
-// Initialize Express
 const app = express();
 
-// Set the view engine to EJS for templating
 app.set('view engine', 'ejs');
 
-// Serve static files from the 'public' directory
 app.use(express.static('public'));
+app.use(express.json()); // Parse JSON bodies
 
-// Get the port from the environment and set a default
 const PORT = process.env.PORT || 3000;
 
-// Root route
 app.get('/', (req, res) => {
     res.render('index', { weather: null }); // Pass initial weather data as null
 });
 
-// API route for fetching weather data
 app.get('/weather', async (req, res) => {
     const city = req.query.city;
     const weatherUrl = `http://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${process.env.OPENWEATHER_API_KEY}`;
@@ -49,18 +44,28 @@ app.get('/location', async (req, res) => {
 });
 
 
-app.get('/aqi', async (req, res) => {
-    const city = req.query.city;
-    const aqiUrl = `http://api.airvisual.com/v2/city?city=${city}&state=YOUR_STATE&country=YOUR_COUNTRY&key=${process.env.AQI_API_KEY}`;
+app.get('/aqi/:city', async (req, res) => {
+    const city = req.params.city;
+    const url = `https://api.waqi.info/feed/${encodeURIComponent(city)}/?token=${process.env.AQICN_API_KEY}`;
 
     try {
-        const response = await fetch(aqiUrl);
-        const aqiData = await response.json();
-        res.json(aqiData.data.current.pollution);
+        const response = await fetch(url);
+        const data = await response.json();
+        if (data.status === "ok") {
+            res.json(data.data);
+        } else {
+            throw new Error('Failed to fetch AQI data');
+        }
     } catch (error) {
+        console.error('Error fetching AQI data:', error);
         res.status(500).json({ error: 'Error fetching AQI data' });
     }
 });
+
+
+
+
+
 
 
 // Start the server
