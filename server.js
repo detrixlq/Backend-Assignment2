@@ -62,10 +62,20 @@ app.get('/aqi/:city', async (req, res) => {
     }
 });
 
+app.get('/timezone/:lat/:lng', async (req, res) => {
+    const { lat, lng } = req.params;
+    const apiKey = process.env.TIMEZONEDB_API_KEY;
+    const url = `http://api.timezonedb.com/v2.1/get-time-zone?key=${apiKey}&format=json&by=position&lat=${lat}&lng=${lng}`;
 
-
-
-
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        res.json(data);
+    } catch (error) {
+        console.error('Error fetching time zone data:', error);
+        res.status(500).json({ error: 'Error fetching time zone data' });
+    }
+});
 
 
 // Start the server
