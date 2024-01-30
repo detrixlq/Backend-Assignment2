@@ -14,7 +14,7 @@ app.use(express.json()); // Parse JSON bodies
 const PORT = process.env.PORT || 3000;
 
 app.get('/', (req, res) => {
-    res.render('index', { weather: null }); // Pass initial weather data as null
+    res.render('index', { weather: null }); 
 });
 
 app.get('/weather', async (req, res) => {

@@ -60,7 +60,7 @@ function displayAQIData(aqiData, city) {
     if (aqiData && aqiData.aqi) {
         aqiDisplay.innerHTML = `
             <h2>AQI Information for ${city}:</h2>
-            <p>AQI: ${aqiData.aqi}</p>
+            <p><strong>AQI:</strong> ${aqiData.aqi}</p>
             <!-- Add more details as needed -->
         `;
     } else {
